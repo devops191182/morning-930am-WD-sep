@@ -2,5 +2,5 @@
 - name: creating ec2
 - hosts: localhost 
   task: 
-   - name: ubuntu
+   - name: centos:7
    - status: started
