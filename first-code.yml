@@ -4,3 +4,4 @@
   task: 
    - name: centos:7
    - status: started
+   - service: enabled
