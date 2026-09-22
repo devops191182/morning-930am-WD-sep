@@ -1,75 +1,40 @@
-{
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "ec2 service role",
-  "Resources": {
-    "EC2ServiceRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "RoleName": "Ec2-S3-role-demo",
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "ec2.amazonaws.com"
-                ]
-              ,
-              "Action": [
-                "sts:AssumeRole"
-              ]
-            }
-          ]
-        },
-        "Path": "/",
-        "Policies": [
-          {
-            "PolicyName": "EC2S3Policy",
-            "PolicyDocument": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "s3:Get*",
-                    "s3:List*"
-                  ],
-                  "Resource": "*"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    "EC2InstanceProfile": {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties": {
-        "Path": "/",
-        "Roles": [
-          {
-            "Ref": "EC2ServiceRole"
-          }
-        ]
-      }
-    }
-  },
-  "Outputs": {
-    "RoleArn": {
-      "Description": "The ARN of the created IAM Role",
-      "Value": {
-        "Fn::GetAtt": [
-          "EC2ServiceRole",
-          "Arn"
-        ]
-      }
-    },
-    "InstanceProfileName": {
-      "Description": "The name of the Instance Profile to attach to your EC2 instance",
-      "Value": {
-        "Ref": "EC2InstanceProfile"
-      }
-    }
-  }
-}
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template to create an EC2 service role with an inline custom policy and an instance profile.'
+
+Resources:
+  # 1. Create the IAM Role for EC2
+  MyEC2ServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: 'IAM service role for EC2 instances'
+      # The Trust Policy allowing the EC2 service to assume this role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      
+      # 2. Add an Inline Permissions Policy
+      Policies:
+        - PolicyName: 'EC2CustomPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Example: Permission to read from a specific S3 bucket
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                Resource: 
+                  - '*'
+  MyEC2InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+        - !Ref MyEC2ServiceRole
+
